@@ -7,7 +7,7 @@ As shown in the following documents [Selenium: Understanding the components](htt
 
 1. WebDriver communicate driver **directly on same host system**
 2. Remote communication through **Remote WebDriver** which is on the same system as the driver and the browser
-3. Remote communication through **Selenium Server** or **Selenium Grid**
+3. Remote communication through **Selenium Server (Grid)**
 
 This server is only relevant option 3 (using Selenium Server)
 
@@ -41,13 +41,16 @@ SeleniumProxyServer -> WebDriver
 
 ## About Selenium Server
 
-TBD
+Selenium Grid is following...
 
-## Supporting Selenium Grid
+> If you want to scale by distributing and running tests on several machines and manage multiple environments from a central point, making it easy to run the tests against a vast combination of browsers/OS, then you want to use Selenium Grid.
+> 
+> https://www.selenium.dev/
 
-TBD
+You can download at [Downloads](https://www.selenium.dev/downloads/) page.
+
+Docker image for the Selenium Grid Server is here. https://github.com/SeleniumHQ/docker-selenium
 
 ## refs
 
-- [Understanding the components](https://www.selenium.dev/documentation/en/webdriver/understanding_the_components/)
 - [10分で理解する Selenium](https://qiita.com/Chanmoro/items/9a3c86bb465c1cce738a)
