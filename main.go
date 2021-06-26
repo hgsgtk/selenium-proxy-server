@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -27,7 +29,9 @@ func main() {
 		fmt.Fprintf(w, "{\"releaseId\": %s}", revision)
 	}
 
-	proxyHandler := func(w http.ResponseWriter, r *http.Request) {
+	// Names it hub to avoid confusion with Http proxy,
+	// which Selenium provides as an option.
+	hubHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		defer r.Body.Close()
@@ -42,11 +46,28 @@ func main() {
 		// logging request body
 		fmt.Fprintf(os.Stdout, "request method: '%s', body: '%s'\n", r.Method, reqBodyBytes)
 
+		// determine url with command
+		vars := mux.Vars(r)
+		command := vars["command"]
+		sessionID := vars["sessionID"]
+		subCommand := vars["subCommand"]
+
+		// Todo refactoring the url logic to be testable
+		url := seleniumServerURL + "/wd/hub"
+		if command != "" {
+			url = url + "/" + command
+		}
+		if sessionID != "" {
+			url = url + "/" + sessionID
+			if subCommand != "" {
+				url = url + "/" + subCommand
+			}
+		}
 		// proxy to selenium server hub endpoint
 		req, err := http.NewRequestWithContext(
 			r.Context(),
 			r.Method,
-			seleniumServerURL+"/wd/hub",
+			url,
 			strings.NewReader(string(reqBodyBytes)))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -54,7 +75,8 @@ func main() {
 			return
 		}
 		client := &http.Client{
-			Timeout: 3 * time.Second,
+			// to aviod client timeout
+			Timeout: 10 * time.Second,
 		}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -78,8 +100,44 @@ func main() {
 		fmt.Fprint(w, string(resBodyBytes))
 	}
 
-	http.HandleFunc("/.healthcheck", hcHandler)
-	http.HandleFunc("/proxy", proxyHandler)
+	notFoundHandler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		defer r.Body.Close()
+
+		// logging unknown request
+		reqBodyBytes, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "{\"error\": %s}", err)
+			return
+		}
+
+		fmt.Fprintf(
+			os.Stdout,
+			"unknown request url path: '%s', method: '%s', body: '%s'\n",
+			r.URL.Path,
+			r.Method,
+			string(reqBodyBytes),
+		)
+
+		// Fixme change the response format to one that can be interpreted by selenium
+		// ex. KeyError: 'value'
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "{\"error\": \"unknown url path '%s'\"}", r.URL.Path)
+	}
+
+	// use gorilla/mux to parse the URI Path variable to determine the Selenium server command.
+	r := mux.NewRouter()
+	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	r.HandleFunc("/.healthcheck", hcHandler)
+	// Todo understand URI variation
+	// ex. /wd/hub/session
+	r.HandleFunc("/wd/hub/{command}", hubHandler)
+	// ex. /wd/hub/session/71c7df563ed4fa1b57bc8d29c7b30edb/url
+	r.HandleFunc("/wd/hub/{command}/{sessionID}", hubHandler)
+	r.HandleFunc("/wd/hub/{command}/{sessionID}/{subCommand}", hubHandler)
+
 	// Fixme graceful shutdown implements
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

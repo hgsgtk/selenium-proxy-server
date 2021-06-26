@@ -143,3 +143,60 @@ $ curl -X POST \
 }
 ```
 
+Start session
+
+```
+$ curl -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "platformName": "any", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}, "desiredCapabilities": {"browserName": "chrome", "version": "", "platform": "ANY", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}' \
+       http://localhost:4444/wd/hub/session
+
+{
+  "value": {
+    "sessionId": "68da4c4d881321a51c6e354f466d6715",
+    "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "chrome",
+      "browserVersion": "91.0.4472.114",
+      "chrome": {
+        "chromedriverVersion": "91.0.4472.101 (af52a90bf87030dd1523486a1cd3ae25c5d76c9b-refs\u002fbranch-heads\u002f4472@{#1462})",
+        "userDataDir": "\u002ftmp\u002f.com.google.Chrome.Bcs4AN"
+      },
+      "goog:chromeOptions": {
+        "debuggerAddress": "localhost:33431"
+      },
+      "networkConnectionEnabled": false,
+      "pageLoadStrategy": "normal",
+      "platformName": "linux",
+      "proxy": {
+      },
+      "se:cdp": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f68da4c4d881321a51c6e354f466d6715\u002fse\u002fcdp",
+      "se:cdpVersion": "91.0.4472.114",
+      "se:vnc": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f68da4c4d881321a51c6e354f466d6715\u002fse\u002fvnc",
+      "se:vncEnabled": true,
+      "se:vncLocalAddress": "ws:\u002f\u002flocalhost:7900\u002fwebsockify",
+      "setWindowRect": true,
+      "strictFileInteractability": false,
+      "timeouts": {
+        "implicit": 0,
+        "pageLoad": 300000,
+        "script": 30000
+      },
+      "unhandledPromptBehavior": "dismiss and notify",
+      "webauthn:extension:largeBlob": true,
+      "webauthn:virtualAuthenticators": true
+    }
+  }
+}
+```
+
+URL Request
+
+```
+$ curl -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"url": "https://www.google.com/"}' \
+       http://localhost:4444/wd/hub/session/779f6b972ea5f3c3810b78191e95b3af/url
+
+{"value":null}
+```

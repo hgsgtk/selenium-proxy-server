@@ -5,7 +5,7 @@ options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 
 driver = webdriver.Remote(
-    command_executor='http://localhost:8080/proxy',
+    command_executor='http://localhost:8080/wd/hub',
     desired_capabilities=options.to_capabilities(),
     options=options,
 )

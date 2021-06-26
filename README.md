@@ -39,6 +39,178 @@ SeleniumProxyServer -> WebDriver
 @enduml
 ```
 
+## Demo: session start via cURL
+
+To start session via selenium proxy server, you can get it the following request.
+
+```
+$ curl -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "platformName": "any", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}, "desiredCapabilities": {"browserName": "chrome", "version": "", "platform": "ANY", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}' \
+       http://localhost:8080/wd/hub/session
+{
+  "value": {
+    "sessionId": "1b1068920b514a61964fedba5c65f18f",
+    "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "chrome",
+      "browserVersion": "91.0.4472.114",
+      "chrome": {
+        "chromedriverVersion": "91.0.4472.101 (af52a90bf87030dd1523486a1cd3ae25c5d76c9b-refs\u002fbranch-heads\u002f4472@{#1462})",
+        "userDataDir": "\u002ftmp\u002f.com.google.Chrome.UdbhpQ"
+      },
+      "goog:chromeOptions": {
+        "debuggerAddress": "localhost:46031"
+      },
+      "networkConnectionEnabled": false,
+      "pageLoadStrategy": "normal",
+      "platformName": "linux",
+      "proxy": {
+      },
+      "se:cdp": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f1b1068920b514a61964fedba5c65f18f\u002fse\u002fcdp",
+      "se:cdpVersion": "91.0.4472.114",
+      "se:vnc": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f1b1068920b514a61964fedba5c65f18f\u002fse\u002fvnc",
+      "se:vncEnabled": true,
+      "se:vncLocalAddress": "ws:\u002f\u002flocalhost:7900\u002fwebsockify",
+      "setWindowRect": true,
+      "strictFileInteractability": false,
+      "timeouts": {
+        "implicit": 0,
+        "pageLoad": 300000,
+        "script": 30000
+      },
+      "unhandledPromptBehavior": "dismiss and notify",
+      "webauthn:extension:largeBlob": true,
+      "webauthn:virtualAuthenticators": true
+    }
+  }
+}
+```
+
+The selenium proxy server logs the request and response.
+
+```
+selenium-proxy-server_1  | request method: 'POST', body: '{"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "platformName": "any", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}, "desiredCapabilities": {"browserName": "chrome", "version": "", "platform": "ANY", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}'
+
+selenium-proxy-server_1  | response status: '200', body: '{
+selenium-proxy-server_1  |   "value": {
+selenium-proxy-server_1  |     "sessionId": "1b1068920b514a61964fedba5c65f18f",
+selenium-proxy-server_1  |     "capabilities": {
+selenium-proxy-server_1  |       "acceptInsecureCerts": false,
+selenium-proxy-server_1  |       "browserName": "chrome",
+selenium-proxy-server_1  |       "browserVersion": "91.0.4472.114",
+selenium-proxy-server_1  |       "chrome": {
+selenium-proxy-server_1  |         "chromedriverVersion": "91.0.4472.101 (af52a90bf87030dd1523486a1cd3ae25c5d76c9b-refs\u002fbranch-heads\u002f4472@{#1462})",
+selenium-proxy-server_1  |         "userDataDir": "\u002ftmp\u002f.com.google.Chrome.UdbhpQ"
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "goog:chromeOptions": {
+selenium-proxy-server_1  |         "debuggerAddress": "localhost:46031"
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "networkConnectionEnabled": false,
+selenium-proxy-server_1  |       "pageLoadStrategy": "normal",
+selenium-proxy-server_1  |       "platformName": "linux",
+selenium-proxy-server_1  |       "proxy": {
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "se:cdp": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f1b1068920b514a61964fedba5c65f18f\u002fse\u002fcdp",
+selenium-proxy-server_1  |       "se:cdpVersion": "91.0.4472.114",
+selenium-proxy-server_1  |       "se:vnc": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002f1b1068920b514a61964fedba5c65f18f\u002fse\u002fvnc",
+selenium-proxy-server_1  |       "se:vncEnabled": true,
+selenium-proxy-server_1  |       "se:vncLocalAddress": "ws:\u002f\u002flocalhost:7900\u002fwebsockify",
+selenium-proxy-server_1  |       "setWindowRect": true,
+selenium-proxy-server_1  |       "strictFileInteractability": false,
+selenium-proxy-server_1  |       "timeouts": {
+selenium-proxy-server_1  |         "implicit": 0,
+selenium-proxy-server_1  |         "pageLoad": 300000,
+selenium-proxy-server_1  |         "script": 30000
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "unhandledPromptBehavior": "dismiss and notify",
+selenium-proxy-server_1  |       "webauthn:extension:largeBlob": true,
+selenium-proxy-server_1  |       "webauthn:virtualAuthenticators": true
+selenium-proxy-server_1  |     }
+selenium-proxy-server_1  |   }
+selenium-proxy-server_1  | }'
+```
+
+## Demo: Python code (go to google.com)
+
+Here is the following python code.
+
+```python
+from selenium import webdriver
+
+
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+
+driver = webdriver.Remote(
+    command_executor='http://localhost:8080/wd/hub',
+    desired_capabilities=options.to_capabilities(),
+    options=options,
+)
+
+driver.get('https://www.google.com/')
+print(driver.current_url)
+
+driver.quit()
+```
+
+Run it.
+
+```
+$ python example/go_google.py
+
+https://www.google.com/
+```
+
+While running, the selenium proxy server logs the following.
+
+```
+selenium-proxy-server_1  | request method: 'POST', body: '{"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "platformName": "any", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}, "desiredCapabilities": {"browserName": "chrome", "version": "", "platform": "ANY", "goog:chromeOptions": {"extensions": [], "args": ["--headless"]}}}'
+selenium-proxy-server_1  | response status: '200', body: '{
+selenium-proxy-server_1  |   "value": {
+selenium-proxy-server_1  |     "sessionId": "a327ca9c5bf35fd5832720b5a8e3bf17",
+selenium-proxy-server_1  |     "capabilities": {
+selenium-proxy-server_1  |       "acceptInsecureCerts": false,
+selenium-proxy-server_1  |       "browserName": "chrome",
+selenium-proxy-server_1  |       "browserVersion": "91.0.4472.114",
+selenium-proxy-server_1  |       "chrome": {
+selenium-proxy-server_1  |         "chromedriverVersion": "91.0.4472.101 (af52a90bf87030dd1523486a1cd3ae25c5d76c9b-refs\u002fbranch-heads\u002f4472@{#1462})",
+selenium-proxy-server_1  |         "userDataDir": "\u002ftmp\u002f.com.google.Chrome.Uiy0jQ"
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "goog:chromeOptions": {
+selenium-proxy-server_1  |         "debuggerAddress": "localhost:41765"
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "networkConnectionEnabled": false,
+selenium-proxy-server_1  |       "pageLoadStrategy": "normal",
+selenium-proxy-server_1  |       "platformName": "ANY",
+selenium-proxy-server_1  |       "proxy": {
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "se:cdp": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002fa327ca9c5bf35fd5832720b5a8e3bf17\u002fse\u002fcdp",
+selenium-proxy-server_1  |       "se:cdpVersion": "91.0.4472.114",
+selenium-proxy-server_1  |       "se:vnc": "ws:\u002f\u002f172.23.0.2:4444\u002fsession\u002fa327ca9c5bf35fd5832720b5a8e3bf17\u002fse\u002fvnc",
+selenium-proxy-server_1  |       "se:vncEnabled": true,
+selenium-proxy-server_1  |       "se:vncLocalAddress": "ws:\u002f\u002flocalhost:7900\u002fwebsockify",
+selenium-proxy-server_1  |       "setWindowRect": true,
+selenium-proxy-server_1  |       "strictFileInteractability": false,
+selenium-proxy-server_1  |       "timeouts": {
+selenium-proxy-server_1  |         "implicit": 0,
+selenium-proxy-server_1  |         "pageLoad": 300000,
+selenium-proxy-server_1  |         "script": 30000
+selenium-proxy-server_1  |       },
+selenium-proxy-server_1  |       "unhandledPromptBehavior": "dismiss and notify",
+selenium-proxy-server_1  |       "webauthn:extension:largeBlob": true,
+selenium-proxy-server_1  |       "webauthn:virtualAuthenticators": true
+selenium-proxy-server_1  |     }
+selenium-proxy-server_1  |   }
+selenium-proxy-server_1  | }'
+selenium-proxy-server_1  | request method: 'POST', body: '{"url": "https://www.google.com/"}'
+selenium-proxy-server_1  | response status: '200', body: '{"value":null}'
+selenium-proxy-server_1  | request method: 'GET', body: ''
+selenium-proxy-server_1  | response status: '200', body: '{"value":"https://www.google.com/"}'
+selenium-proxy-server_1  | request method: 'DELETE', body: ''
+selenium-proxy-server_1  | response status: '200', body: '{"value":null}'
+```
+
 ## About Selenium Server
 
 Selenium Grid is following...
