@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+    selenium-server:
+        # ref: https://github.com/SeleniumHQ/docker-selenium
+        image: selenium/standalone-chrome:4.0.0-rc-1-prerelease-20210618
+        ports:
+            - "4444:4444"
