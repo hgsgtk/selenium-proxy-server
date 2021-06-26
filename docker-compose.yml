@@ -8,8 +8,18 @@ services:
             - "4444:4444"
         volumes:
             - /dev/shm:/dev/shm
-    
+        networks:
+            selenium-instance:    
+
     selenium-proxy-server:
         build: .
         ports:
             - "8080:8080"
+        depends_on:
+            - selenium-server
+        networks:
+            selenium-instance:
+    
+
+networks:
+    selenium-instance:
