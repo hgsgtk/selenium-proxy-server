@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
     selenium-server:
@@ -6,3 +6,10 @@ services:
         image: selenium/standalone-chrome:4.0.0-rc-1-prerelease-20210618
         ports:
             - "4444:4444"
+        volumes:
+            - /dev/shm:/dev/shm
+    
+    selenium-proxy-server:
+        build: .
+        ports:
+            - "8080:8080"

@@ -81,3 +81,65 @@ selenium-server_1  | 07:59:57.936 INFO [ProtocolHandshake.createSession] - Detec
 selenium-server_1  | 07:59:57.944 INFO [LocalDistributor.newSession] - Session created by the distributor. Id: 8f54a15dc7527d84db94b3024260f463, Caps: Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 91.0.4472.114, chrome: {chromedriverVersion: 91.0.4472.101 (af52a90bf870..., userDataDir: /tmp/.com.google.Chrome.0llfVU}, goog:chromeOptions: {debuggerAddress: localhost:40383}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: linux, proxy: Proxy(), se:cdp: ws://172.19.0.2:4444/sessio..., se:cdpVersion: 91.0.4472.114, se:vnc: ws://172.19.0.2:4444/sessio..., se:vncEnabled: true, se:vncLocalAddress: ws://localhost:7900/websockify, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:largeBlob: true, webauthn:virtualAuthenticators: true}
 selenium-server_1  | 07:59:58.773 INFO [LocalSessionMap.lambda$new$0] - Deleted session from local session map, Id: 8f54a15dc7527d84db94b3024260f463
 ```
+
+## Client Code Details
+
+Create a new driver that will issue commands using the wire protocol by selenium/py code.
+
+```python
+driver = webdriver.Remote(
+    command_executor='http://localhost:4444/wd/hub',
+    desired_capabilities=options.to_capabilities(),
+    options=options,
+)
+```
+
+The options are as follows
+
+```python
+         - command_executor - Either a string representing URL of the remote server or a custom
+             remote_connection.RemoteConnection object. Defaults to 'http://127.0.0.1:4444/wd/hub'.
+         - desired_capabilities - A dictionary of capabilities to request when
+             starting the browser session. Required parameter.
+         - browser_profile - A selenium.webdriver.firefox.firefox_profile.FirefoxProfile object.
+             Only used if Firefox is requested. Optional.
+         - proxy - A selenium.webdriver.common.proxy.Proxy object. The browser session will
+             be started with given proxy settings, if possible. Optional.
+         - keep_alive - Whether to configure remote_connection.RemoteConnection to use
+             HTTP keep-alive. Defaults to True.
+         - file_detector - Pass custom file detector object during instantiation. If None,
+             then default LocalFileDetector() will be used.
+         - options - instance of a driver options.Options class
+```
+
+It is deprecated that pass proxy in constructur, instead, pass proxy in options.
+
+When `webdriver.Remote` is callled, a new session starts.
+
+```
+        self.start_session(capabilities, browser_profile)
+```
+
+https://github.com/SeleniumHQ/selenium/blob/1e3cc6b5f650fbb1da43aa0e400316fd37a5304b/py/selenium/webdriver/remote/webdriver.py#L247
+
+
+
+## API Request via Curl command
+
+For example, try to request /wd/hub. It's invalid request.
+
+```
+$ curl -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"desiredCapabilities":{"browser":"chrome"}}' \
+       http://localhost:4444/wd/hub
+
+{
+  "value": {
+    "error": "unknown command",
+    "message": "Unable to find handler for (POST) \u002fwd\u002fhub",
+    "stacktrace": ""
+  }
+}
+```
+

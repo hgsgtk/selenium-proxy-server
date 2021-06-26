@@ -105,3 +105,4 @@ Starting Selenium Grid Standalone...
 ## refs
 
 - [10分で理解する Selenium](https://qiita.com/Chanmoro/items/9a3c86bb465c1cce738a)
+- [入門、Selenium  第1回 Seleniumの仕組み](https://www.codegrid.net/articles/2014-selenium-1/)
