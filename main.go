@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -44,7 +45,22 @@ func main() {
 		}
 
 		// logging request body
-		fmt.Fprintf(os.Stdout, "request method: '%s', body: '%s'\n", r.Method, reqBodyBytes)
+		// formatting JSON to parse it from another program system
+		type requestLog struct {
+			Method string `json:"method`
+			URL    string `json:"url`
+			Body   string `json:"body"`
+		}
+		rql := requestLog{
+			Method: r.Method,
+			URL:    r.URL.Path,
+			Body:   string(reqBodyBytes),
+		}
+		if err := json.NewEncoder(os.Stdout).Encode(rql); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "{\"error\": %s}", err)
+			return
+		}
 
 		// determine url with command
 		vars := mux.Vars(r)
@@ -93,7 +109,20 @@ func main() {
 		defer resp.Body.Close()
 
 		// logging response body
-		fmt.Fprintf(os.Stdout, "response status: '%d', body: '%s'\n", resp.StatusCode, string(resBodyBytes))
+		// formatting JSON to parse it from another program system
+		type responseLog struct {
+			Status int    `json:"status`
+			Body   string `json:"body`
+		}
+		rsl := responseLog{
+			Status: resp.StatusCode,
+			Body:   string(resBodyBytes),
+		}
+		if err := json.NewEncoder(os.Stdout).Encode(rsl); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "{\"error\": %s}", err)
+			return
+		}
 
 		// response to client
 		w.WriteHeader(resp.StatusCode)
