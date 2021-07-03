@@ -27,7 +27,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "{\"releaseId\": %s}", revision)
+		fmt.Fprintf(w, "{\"status\": \"0\", \"releaseId\": %s}", revision)
 	}
 
 	// Names it hub to avoid confusion with Http proxy,
@@ -40,7 +40,7 @@ func main() {
 		reqBodyBytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{\"error\": %s}", err)
+			fmt.Fprintf(w, "{\"status\": \"27\", \"error\": %s}", err)
 			return
 		}
 
@@ -58,7 +58,7 @@ func main() {
 		}
 		if err := json.NewEncoder(os.Stdout).Encode(rql); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{\"error\": %s}", err)
+			fmt.Fprintf(w, "{\"status\": \"27\",\"error\": %s}", err)
 			return
 		}
 
@@ -87,7 +87,7 @@ func main() {
 			strings.NewReader(string(reqBodyBytes)))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{\"error\": %s}", err)
+			fmt.Fprintf(w, "{\"status\": \"27\", \"error\": %s}", err)
 			return
 		}
 		client := &http.Client{
@@ -97,13 +97,13 @@ func main() {
 		resp, err := client.Do(req)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{\"error\": %s}", err)
+			fmt.Fprintf(w, "{\"status\": \"27\", \"error\": %s}", err)
 			return
 		}
 		resBodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{\"error\": %s}", err)
+			fmt.Fprintf(w, "{\"status\": \"27\", \"error\": %s}", err)
 			return
 		}
 		defer resp.Body.Close()
