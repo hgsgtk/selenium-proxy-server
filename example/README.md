@@ -1,6 +1,53 @@
 # Example
 
-## Case: Go to google.com/
+## Http Proxy type
+
+```python
+from selenium import webdriver
+
+PROXY = 'http://localhost:8080'
+
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--proxy-server=%s' % PROXY)
+
+driver = webdriver.Remote(
+    command_executor='http://localhost:4444/wd/hub',
+    desired_capabilities=options.to_capabilities(),
+    options=options,
+)
+
+driver.get('https://www.google.com/')
+print(driver.current_url)
+
+driver.quit()
+```
+
+## First trial implement
+
+Try by the server https://github.com/hgsgtk/selenium-proxy-server/blob/09cc49752d5d800095e5d5b709d3682ae0614d35/main.go#L24 .
+
+```bash
+-> % python go_google.py
+Traceback (most recent call last):
+  File "/Users/kazukihigashiguchi/go/src/github.com/hgsgtk/selenium-proxy-server/example/go_google.py", line 15, in <module>
+    driver.get('https://www.google.com/')
+  File "/Users/kazukihigashiguchi/.pyenv/versions/3.9.2/lib/python3.9/site-packages/selenium/webdriver/remote/webdriver.py", line 333, in get
+    self.execute(Command.GET, {'url': url})
+  File "/Users/kazukihigashiguchi/.pyenv/versions/3.9.2/lib/python3.9/site-packages/selenium/webdriver/remote/webdriver.py", line 321, in execute
+    self.error_handler.check_response(response)
+  File "/Users/kazukihigashiguchi/.pyenv/versions/3.9.2/lib/python3.9/site-packages/selenium/webdriver/remote/errorhandler.py", line 242, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_PROXY_CONNECTION_FAILED
+  (Session info: headless chrome=91.0.4472.114)
+```
+
+> selenium.common.exceptions.WebDriverException: Message: unknown error: net::ERR_PROXY_CONNECTION_FAILED
+
+This server does not meet the requirements for a proxy.
+
+## Simple Server type
+### Case: Go to google.com/
 
 Try running the following python code.
 
@@ -39,12 +86,12 @@ ChromeDriver was started successfully.
 07:02:10.230 INFO [LocalSessionMap.lambda$new$0] - Deleted session from local session map, Id: 2dcf9ba78fea5a08fee58700486e8f92
 ```
 
-## Refs
+#### Refs
 
 - Auto complement on VSCode (https://qiita.com/4roro4/items/93f4851f1140e19753ce)
 
 
-## Case go to selenium.dev and select element
+### Case go to selenium.dev and select element
 
 Try running the following python code.
 
@@ -82,7 +129,7 @@ selenium-server_1  | 07:59:57.944 INFO [LocalDistributor.newSession] - Session c
 selenium-server_1  | 07:59:58.773 INFO [LocalSessionMap.lambda$new$0] - Deleted session from local session map, Id: 8f54a15dc7527d84db94b3024260f463
 ```
 
-## Client Code Details
+### Client Code Details
 
 Create a new driver that will issue commands using the wire protocol by selenium/py code.
 
@@ -124,7 +171,7 @@ https://github.com/SeleniumHQ/selenium/blob/1e3cc6b5f650fbb1da43aa0e400316fd37a5
 
 
 
-## API Request via Curl command
+### API Request via Curl command
 
 For example, try to request /wd/hub. It's invalid request.
 
