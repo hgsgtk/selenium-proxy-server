@@ -1,7 +1,7 @@
 from selenium import webdriver
 
-# https://www.proxynova.com/proxy-server-list/country-jp/
-PROXY = '160.16.52.36:3128'
+# prepare: go run http_only_proxy.go
+PROXY = '127.0.0.1:8080'
 
 options = webdriver.ChromeOptions()
 options.add_argument('--proxy-server=%s' % PROXY)
@@ -9,7 +9,7 @@ options.add_argument('--headless')
 
 driver = webdriver.Chrome(options=options)
 
-driver.get('https://www.google.com/')
+driver.get('http://example.com/')
 print(driver.current_url)
 
 driver.quit()

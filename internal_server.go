@@ -13,21 +13,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var (
-	// revision is assumed to be overwritten by the ldflags option.
-	revision = "default"
-
-	// fixme: set from out of container
-	seleniumServerURL = "http://selenium-server:4444"
-)
-
-func main() {
+func runInternalServer() {
 	// Fixme split to another file
 	hcHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "{\"status\": \"0\", \"releaseId\": %s}", revision)
+		fmt.Fprintf(w, "{\"status\": \"0\", \"releaseId\": %s}", "default")
 	}
 
 	// Names it hub to avoid confusion with Http proxy,
